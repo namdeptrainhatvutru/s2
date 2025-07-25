@@ -1,0 +1,25 @@
+{
+    "sounds":[
+        {
+            "id": 1,
+            "name": "Anime Wow",
+            "color": "red",
+            "source": "/sounds/anime-wow-sound-effect.mp3",
+            "category": "Anime"
+        },
+        {
+            "id": 2,
+            "name": "Gọi Gọi Tôi Công Chuyện",
+            "color": "blue",
+            "source": "/sounds/goi-goi-toi-cong-chuyen.mp3",
+            "category": "Game"
+        },
+        {
+            "id": 3,
+            "name": "Gọi Gọi Tôi Công Chuyện",
+            "color": "green",
+            "source": "/sounds/goi-goi-toi-cong-chuyen.mp3",
+            "category": "Game"
+        }
+    ]
+}

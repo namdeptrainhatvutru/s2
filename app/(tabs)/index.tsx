@@ -26,7 +26,7 @@ interface Sound {
   source: string;
   category: string;
 }
-
+  let playingPromise: Promise<void> = Promise.resolve();
 export default function HomeScreen() {
   const [data, setData] = useState<Sound[]>([]);
   const [pressedId, setPressedId] = useState<number | null>(null);
@@ -37,6 +37,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
 
 
   
@@ -51,44 +52,42 @@ export default function HomeScreen() {
   };
 
   const playSound = async (source: string, id: number) => {
-    if (isPlaying && soundRef.current) {
+    // Đảm bảo các thao tác âm thanh diễn ra tuần tự
+    playingPromise = playingPromise.then(async () => {
       try {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+        // Dừng và giải phóng âm cũ nếu có
+        if (soundRef.current) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
       } catch (e) {
         console.warn('Failed to stop/unload previous sound:', e);
       }
-    }
 
-    setPressedId(id);
-    setIsPlaying(true);
+      setPressedId(id);
+      setIsPlaying(true);
 
-    try {
-      const { sound } = await Audio.Sound.createAsync({
-        uri: `${source}`,
-      });
+      try {
+        const { sound } = await Audio.Sound.createAsync({ uri: source });
+        soundRef.current = sound;
 
-      soundRef.current = sound;
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            setIsPlaying(false);
+            sound.unloadAsync();
+            setPressedId(null);
+          }
+        });
 
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlaying(false);
-          sound.unloadAsync();
-        }
-      });
-
-      await sound.playAsync();
-
-      // Show button2 for a short time
-      setTimeout(() => {
+        await sound.playAsync();
+        setTimeout(() => setPressedId(null), 150);
+      } catch (error) {
+        setIsPlaying(false);
         setPressedId(null);
-      }, 150);
-    } catch (error) {
-      console.error('Error playing sound:', error);
-      setIsPlaying(false);
-      setPressedId(null);
-    }
+        console.error('Error playing sound:', error);
+      }
+    });
   };
 
   useEffect(() => {
@@ -180,6 +179,7 @@ export default function HomeScreen() {
             <Text style={styles.headerTitle}>Meme Sound</Text>
           </ImageBackground>
           {/* Search */}
+
           <View style={styles.searchContainer}>
             <Image 
               source={require('@/assets/images/search.png')} 

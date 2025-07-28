@@ -1,3 +1,4 @@
+import { API } from '@env';
 import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -89,7 +90,7 @@ export default function TabTwoScreen() {
       // Hiển thị thông báo đang tải
       Alert.alert('Đang tải...', 'Vui lòng đợi trong giây lát');
 
-      const response = await fetch('http://192.168.1.25:3000/upload', {
+      const response = await fetch(`${API}/upload`, {
         method: 'POST',
         body: formData,
         headers: {

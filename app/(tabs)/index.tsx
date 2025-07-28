@@ -1,3 +1,4 @@
+import { API } from '@env';
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
@@ -18,7 +19,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-
 interface Sound {
   id: number;
   name: string;
@@ -26,7 +26,7 @@ interface Sound {
   source: string;
   category: string;
 }
-  let playingPromise: Promise<void> = Promise.resolve();
+let playingPromise: Promise<void> = Promise.resolve();
 export default function HomeScreen() {
   const [data, setData] = useState<Sound[]>([]);
   const [pressedId, setPressedId] = useState<number | null>(null);
@@ -38,12 +38,11 @@ export default function HomeScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-
-
   
   const fetchData = async () => {
     try {
-      const response = await fetch('http://192.168.1.25:3000/files');
+      const response = await fetch(`${API}/files`);
+    
       const json = await response.json();
       setData(json.files);
     } catch (error) {
